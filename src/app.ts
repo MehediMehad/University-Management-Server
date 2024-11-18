@@ -1,5 +1,6 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
+import { StudentRoutes } from './app/modules/student/student.route';
 const app: Application = express();
 const port = 3000;
 
@@ -7,14 +8,14 @@ const port = 3000;
 app.use(express.json());
 app.use(cors());
 
-app.get('/', (req: Request, res: Response) => {
-  const s = 55;
+// applications routs
+app.use('/api/v1/students', StudentRoutes);
 
-  res.send(s);
-});
+const getAController = (req: Request, res: Response) => {
+    const a = 55;
+    res.send({ a });
+};
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+app.get('/', getAController);
 
 export default app;
