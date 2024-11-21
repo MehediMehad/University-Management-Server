@@ -1,10 +1,12 @@
-export type StudentName = {
+import { Model } from 'mongoose';
+
+export type TStudentName = {
     firstName: string;
-    middleName: string;
+    middleName?: string;
     lastName: string;
 };
 
-export type Guardian = {
+export type TGuardian = {
     fatherName: string;
     fatherOccupation: string;
     fatherContactNo: string;
@@ -13,7 +15,7 @@ export type Guardian = {
     motherContactNo: string;
 };
 
-export type LocalGuardian = {
+export type TLocalGuardian = {
     name: string;
     occupation: string;
     contactNo: string;
@@ -22,19 +24,29 @@ export type LocalGuardian = {
 
 // 1. Create an interface representing a document in MongoDB.
 
-export type Student = {
+export type TStudent = {
     id: string;
-    name: StudentName;
-    gender: 'male' | 'female';
+    name: TStudentName;
+    gender: 'male' | 'female' | 'other';
     dateOfBirth: string;
     email: string;
     contactNo: string;
     emergencyContactNo: string;
     bloodGroup?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
-    presentAddress: string;
+    presentAddress?: string;
     permanentAddress: string;
-    guardian: Guardian;
-    localGuardian: LocalGuardian;
+    guardian: TGuardian;
+    localGuardian: TLocalGuardian;
     profileImg?: string;
     isActive: 'active' | 'blocked';
 };
+
+export type StudentMethods = {
+    isUserExists(id: string): Promise<TStudent | null>;
+};
+
+export type StudentModel = Model<
+    TStudent,
+    Record<string, never>,
+    StudentMethods
+>;
