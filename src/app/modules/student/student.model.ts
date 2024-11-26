@@ -1,13 +1,14 @@
 import { Schema, model } from 'mongoose';
+import bcrypt from 'bcrypt';
 // import validator from 'validator';
 import {
     TGuardian,
     TLocalGuardian,
     TStudent,
-    StudentMethods,
     StudentModel,
     TStudentName
-} from './student/student.interface';
+} from './student.interface';
+import config from '../../config';
 
 const userNameSchema = new Schema<TStudentName>({
     firstName: {
@@ -87,11 +88,16 @@ const localGuardianSchema = new Schema<TLocalGuardian>({
 });
 
 // 2. Create a Schema corresponding to the document interface.
-const studentSchema = new Schema<TStudent, StudentModel, StudentMethods>({
+const studentSchema = new Schema<TStudent, StudentModel>({
     id: {
         type: String,
         required: [true, 'Student ID is required.'],
         unique: true
+    },
+    password: {
+        type: String,
+        required: [true, 'Password is required.'],
+        maxlength: [20, 'Password Less Then 20']
     },
     name: {
         type: userNameSchema,
@@ -153,13 +159,70 @@ const studentSchema = new Schema<TStudent, StudentModel, StudentMethods>({
             message: '{VALUE} is not a valid status.'
         },
         default: 'active'
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false,
+        validate: {
+            validator: function (value) {
+                return (
+                    value === null ||
+                    value === undefined ||
+                    typeof value === 'boolean'
+                );
+            },
+            message: 'isDeleted must be a boolean or null or undefined'
+        }
     }
 });
 
-studentSchema.methods.isUserExists = async function (id: string) {
+// pre save middleware / hook : will work no create create()
+studentSchema.pre('save', async function (next) {
+    // console.log(this, 'pre hook : we will save the data');
+    // hashing password and save intoDB
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const user = this;
+    user.password = await bcrypt.hash(
+        user.password,
+        Number(config.bcrypt_salt_rounds)
+    );
+    next();
+});
+
+// post middleware / hook
+studentSchema.post('save', async function (doc, next) {
+    doc.password = '';
+    next();
+});
+
+// Query Middleware
+studentSchema.pre('find', function (next) {
+    this.find({ isDeleted: { $ne: true } });
+    next();
+});
+
+studentSchema.pre('findOne', function (next) {
+    this.find({ isDeleted: { $ne: true } });
+    next();
+});
+
+studentSchema.pre('aggregate', function (next) {
+    this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
+    next();
+});
+
+// creating a custom static method
+studentSchema.statics.isUserExists = async function (id: string) {
     const existingUser = await Student.findOne({ id });
     return existingUser;
 };
+
+// creating a custom instance method
+// studentSchema.methods.isUserExists = async function (id: string) {
+//     const existingUser = await Student.findOne({ id });
+//     return existingUser;
+// };
+
 export const Student = model<TStudent, StudentModel>('Student', studentSchema);
 
 // include appropriate errors massage (Chat GPT Generate )
