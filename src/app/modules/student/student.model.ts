@@ -1,5 +1,4 @@
 import { Schema, model } from 'mongoose';
-import bcrypt from 'bcrypt';
 // import validator from 'validator';
 import {
     TGuardian,
@@ -8,7 +7,6 @@ import {
     StudentModel,
     TStudentName
 } from './student.interface';
-import config from '../../config';
 
 const userNameSchema = new Schema<TStudentName>({
     firstName: {
@@ -101,11 +99,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
             unique: true,
             ref: 'User'
         },
-        password: {
-            type: String,
-            required: [true, 'Password is required.'],
-            maxlength: [20, 'Password Less Then 20']
-        },
         name: {
             type: userNameSchema,
             required: [true, 'Student name is required.']
@@ -185,24 +178,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
 studentSchema.virtual('fullName').get(function () {
     return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
 });
-// pre save middleware / hook : will work no create create()
-studentSchema.pre('save', async function (next) {
-    // console.log(this, 'pre hook : we will save the data');
-    // hashing password and save intoDB
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const user = this;
-    user.password = await bcrypt.hash(
-        user.password,
-        Number(config.bcrypt_salt_rounds)
-    );
-    next();
-});
-
-// post middleware / hook
-studentSchema.post('save', async function (doc, next) {
-    doc.password = '';
-    next();
-});
 
 // Query Middleware
 studentSchema.pre('find', function (next) {
@@ -226,12 +201,4 @@ studentSchema.statics.isUserExists = async function (id: string) {
     return existingUser;
 };
 
-// creating a custom instance method
-// studentSchema.methods.isUserExists = async function (id: string) {
-//     const existingUser = await Student.findOne({ id });
-//     return existingUser;
-// };
-
 export const Student = model<TStudent, StudentModel>('Student', studentSchema);
-
-// include appropriate errors massage (Chat GPT Generate )
