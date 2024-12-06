@@ -43,7 +43,7 @@ export const createsStudentValidationSchema = z.object({
             gender: z.enum(['male', 'female', 'other'], {
                 errorMap: () => ({ message: 'Invalid gender.' })
             }),
-            dateOfBirth: z.date().optional(),
+            dateOfBirth: z.string().optional(),
             email: z
                 .string()
                 .email('Invalid email format.')
