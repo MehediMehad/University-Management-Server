@@ -20,7 +20,6 @@ export const generateStudentId = async (payload: TAcademicSemester | null) => {
     if (!payload) {
         throw new Error('Invalid academic semester data.');
     }
-
     let currentId = (0).toString(); // by default id 0000
     const lastStudentId = await findLastStudentId(); //* id: 2030010001
 
