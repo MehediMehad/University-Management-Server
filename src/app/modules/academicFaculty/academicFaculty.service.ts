@@ -11,7 +11,13 @@ const getAllAcademicFacultiesFromDB = async () => {
     return result;
 };
 
+const getSingleAcademicFacultyFromDB = async (id: string) => {
+    const result = await AcademicFaculty.findById(id);
+    return result;
+};
+
 export const AcademicFacultyServices = {
     createAcademicFacultyIntoDB,
-    getAllAcademicFacultiesFromDB
+    getAllAcademicFacultiesFromDB,
+    getSingleAcademicFacultyFromDB
 };
