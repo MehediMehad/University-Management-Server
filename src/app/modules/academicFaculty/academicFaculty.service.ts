@@ -16,8 +16,23 @@ const getSingleAcademicFacultyFromDB = async (id: string) => {
     return result;
 };
 
+const updateAcademicFacultyIntoDB = async (
+    id: string,
+    payload: Partial<TAcademicFaculty>
+) => {
+    const result = await AcademicFaculty.findOneAndUpdate(
+        { _id: id },
+        payload,
+        {
+            new: true
+        }
+    );
+    return result;
+};
+
 export const AcademicFacultyServices = {
     createAcademicFacultyIntoDB,
     getAllAcademicFacultiesFromDB,
-    getSingleAcademicFacultyFromDB
+    getSingleAcademicFacultyFromDB,
+    updateAcademicFacultyIntoDB
 };
