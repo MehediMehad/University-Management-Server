@@ -29,6 +29,18 @@ academicDepartmentSchema.pre('save', async function (next) {
     next();
 });
 
+// Pre-findOneAndUpdate middleware to check if the department exists
+academicDepartmentSchema.pre('findOneAndUpdate', async function (next) {
+    const query = this.getQuery();
+    const isDepartmentExist = await AcademicDepartment.findOne(query);
+
+    if (!isDepartmentExist) {
+        const error = new Error('This department already exists!');
+        return next(error);
+    }
+    next();
+});
+
 export const AcademicDepartment = model<TAcademicDepartment>(
     'AcademicDepartment',
     academicDepartmentSchema
