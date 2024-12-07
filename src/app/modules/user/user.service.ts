@@ -1,5 +1,5 @@
 import config from '../../config';
-import { AcademicSemester } from '../academicSemester/academic.semester.model';
+import { AcademicSemester } from '../academicSemester/academicSemester.model';
 import { TStudent } from '../student/student.interface';
 import { Student } from '../student/student.model';
 import { TUser } from './user.interface';

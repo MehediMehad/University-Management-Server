@@ -1,6 +1,6 @@
-import { academicSemesterNameCodeMapper } from './academic.semester.const';
-import { TAcademicSemester } from './academic.semester.interface';
-import { AcademicSemester } from './academic.semester.model';
+import { academicSemesterNameCodeMapper } from './academicSemester.const';
+import { TAcademicSemester } from './academicSemester.interface';
+import { AcademicSemester } from './academicSemester.model';
 
 const createAcademicSemesterIntoDB = async (payload: TAcademicSemester) => {
     if (academicSemesterNameCodeMapper[payload.name] !== payload.code) {
