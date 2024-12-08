@@ -3,6 +3,8 @@ import sendResponse from '../../utils/sendResponse';
 import { StatusCodes } from 'http-status-codes';
 import { RequestHandler } from 'express';
 import catchAsync from '../../utils/catchAsync';
+import { Student } from './student.model';
+import AppError from '../../errors/AppError';
 
 const getAllStudents = catchAsync(async (req, res) => {
     const result = await StudentServices.getAllStudentsFromDB();
@@ -29,6 +31,11 @@ const getSingleStudent: RequestHandler = catchAsync(async (req, res) => {
 
 const deleteStudent: RequestHandler = catchAsync(async (req, res) => {
     const { studentId } = req.params;
+
+    const isStudentExist = await Student.findOne({ id: studentId });
+    if (!isStudentExist) {
+        throw new AppError(StatusCodes.BAD_REQUEST, 'Student dose not exist');
+    }
     const result = await StudentServices.deleteStudentFromDB(studentId);
 
     sendResponse(res, {
