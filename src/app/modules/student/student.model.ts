@@ -169,6 +169,10 @@ const studentSchema = new Schema<TStudent, StudentModel>(
                 },
                 message: 'isDeleted must be a boolean or null or undefined'
             }
+        },
+        academicDepartment: {
+            type: Schema.Types.ObjectId,
+            ref: 'AcademicDepartment'
         }
     },
     {

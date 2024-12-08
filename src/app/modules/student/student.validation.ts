@@ -67,10 +67,11 @@ export const createsStudentValidationSchema = z.object({
             profileImg: z
                 .string()
                 .url('Invalid profile image URL.')
-                .min(1, 'Profile image URL is required.')
+                .min(1, 'Profile image URL is required.'),
+            academicDepartment: z.string()
         })
     })
 });
 export const studentValidations = {
-    studentValidationSchema: createsStudentValidationSchema
+    createsStudentValidationSchema
 };
