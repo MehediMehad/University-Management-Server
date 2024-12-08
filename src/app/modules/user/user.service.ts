@@ -53,9 +53,9 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
                 'Failed to create user'
             );
         }
-        return newStudent;
         await session.commitTransaction();
         await session.endSession();
+        return newStudent;
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
         await session.abortTransaction();
