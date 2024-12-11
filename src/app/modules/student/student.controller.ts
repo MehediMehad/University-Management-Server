@@ -29,6 +29,23 @@ const getSingleStudent: RequestHandler = catchAsync(async (req, res) => {
     });
 });
 
+const updateStudent: RequestHandler = catchAsync(async (req, res) => {
+    const { studentId } = req.params;
+
+    const isStudentExist = await Student.findOne({ id: studentId });
+    if (!isStudentExist) {
+        throw new AppError(StatusCodes.BAD_REQUEST, 'Student dose not exist');
+    }
+    const result = await StudentServices.deleteStudentFromDB(studentId);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: 'Student is updated successfully!',
+        data: result
+    });
+});
+
 const deleteStudent: RequestHandler = catchAsync(async (req, res) => {
     const { studentId } = req.params;
 
@@ -48,5 +65,6 @@ const deleteStudent: RequestHandler = catchAsync(async (req, res) => {
 export const StudentControllers = {
     getAllStudents,
     getSingleStudent,
+    updateStudent,
     deleteStudent
 };
