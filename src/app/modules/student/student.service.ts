@@ -15,6 +15,12 @@ const getAllStudentsFromDB = async () => {
         });
     return result;
 };
+const updateStudentFromDB = async (id: string) => {
+    const result = await Student.findOne({ id });
+
+    return result;
+};
+
 const getSingleStudentFromDB = async (id: string) => {
     const result = await Student.findOne({ id })
         .populate('admissionSemester')
@@ -68,5 +74,6 @@ const deleteStudentFromDB = async (id: string) => {
 export const StudentServices = {
     getAllStudentsFromDB,
     getSingleStudentFromDB,
+    updateStudentFromDB,
     deleteStudentFromDB
 };
