@@ -31,12 +31,16 @@ const getSingleStudent: RequestHandler = catchAsync(async (req, res) => {
 
 const updateStudent: RequestHandler = catchAsync(async (req, res) => {
     const { studentId } = req.params;
+    const { student } = req.body;
 
     const isStudentExist = await Student.findOne({ id: studentId });
     if (!isStudentExist) {
         throw new AppError(StatusCodes.BAD_REQUEST, 'Student dose not exist');
     }
-    const result = await StudentServices.deleteStudentFromDB(studentId);
+    const result = await StudentServices.updateStudentIntoDB(
+        studentId,
+        student
+    );
 
     sendResponse(res, {
         statusCode: StatusCodes.OK,

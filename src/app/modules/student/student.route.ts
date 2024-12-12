@@ -9,12 +9,12 @@ const { getAllStudents, getSingleStudent, deleteStudent, updateStudent } =
 
 // will call controller func
 router.get('/', getAllStudents);
-router.get(
+router.get('/:studentId', getSingleStudent);
+router.patch(
     '/:studentId',
     validateRequest(updateStudentValidationSchema),
-    getSingleStudent
+    updateStudent
 );
-router.patch('/:studentId', updateStudent);
 router.delete('/:studentId', deleteStudent);
 
 export const StudentRoutes = router;

@@ -3,6 +3,7 @@ import { Student } from './student.model';
 import AppError from '../../errors/AppError';
 import { StatusCodes } from 'http-status-codes';
 import { User } from '../user/user.model';
+import { TStudent } from './student.interface';
 
 const getAllStudentsFromDB = async () => {
     const result = await Student.find()
@@ -15,8 +16,41 @@ const getAllStudentsFromDB = async () => {
         });
     return result;
 };
-const updateStudentFromDB = async (id: string) => {
-    const result = await Student.findOne({ id });
+const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
+    const { name, guardian, localGuardian, ...remainingStudentData } = payload;
+    const modifiedUpdatedData: Record<string, unknown> = {
+        ...remainingStudentData
+    };
+    /*
+    guardian: {
+      fatherOccupation:"Teacher"
+    }
+
+    guardian.fatherOccupation = Teacher
+
+    name.firstName = 'Mehedi'
+    name.lastName = 'Mehad'
+  */
+    if (name && Object.keys(name).length) {
+        for (const [key, value] of Object.entries(name)) {
+            modifiedUpdatedData[`name.${key}`] = value;
+        }
+    }
+    if (guardian && Object.keys(guardian).length) {
+        for (const [key, value] of Object.entries(guardian)) {
+            modifiedUpdatedData[`guardian.${key}`] = value;
+        }
+    }
+    if (localGuardian && Object.keys(localGuardian).length) {
+        for (const [key, value] of Object.entries(localGuardian)) {
+            modifiedUpdatedData[`localGuardian.${key}`] = value;
+        }
+    }
+
+    const result = await Student.findOneAndUpdate({ id }, modifiedUpdatedData, {
+        new: true,
+        runValidators: true
+    });
 
     return result;
 };
@@ -65,15 +99,16 @@ const deleteStudentFromDB = async (id: string) => {
         await session.endSession();
 
         return deletedStudent;
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
-    } catch (err) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars, @typescript-eslint/no-explicit-any
+    } catch (err: any) {
         await session.abortTransaction();
         await session.endSession();
+        throw new AppError(StatusCodes.BAD_REQUEST, err);
     }
 };
 export const StudentServices = {
     getAllStudentsFromDB,
     getSingleStudentFromDB,
-    updateStudentFromDB,
+    updateStudentIntoDB,
     deleteStudentFromDB
 };
