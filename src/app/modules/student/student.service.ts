@@ -10,6 +10,10 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
     // {email: {$regex : query.searchTerm, $option: i}}
     // {presentAddress: {$regex : query.searchTerm, $option: i}}
     // {'name.firstName': {$regex : query.searchTerm, $option: i}}
+    console.log('base', { query });
+
+    const queryObj = { ...query };
+
     const studentSearchableFields = [
         'email',
         'name.firstName',
@@ -20,12 +24,18 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
     if (query?.searchTerm) {
         searchTerm = query?.searchTerm as string;
     }
-
-    const result = await Student.find({
+    const searchQuery = Student.find({
         $or: studentSearchableFields.map((field) => ({
             [field]: { $regex: searchTerm, $options: 'i' }
         }))
-    })
+    });
+    // Filtering
+    const excludeFields = ['searchTerm', 'sort', 'limit'];
+
+    excludeFields.forEach((el) => delete queryObj[el]);
+
+    const filterQuery = searchQuery
+        .find(queryObj)
         .populate('admissionSemester')
         .populate({
             path: 'academicDepartment',
@@ -33,7 +43,19 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
                 path: 'academicFaculty'
             }
         });
-    return result;
+    let sort = '-createdAt';
+    if (query?.sort) {
+        sort = query.sort as string;
+    }
+    const sortQuery = filterQuery.sort(sort);
+
+    let limit = 1;
+    if (query?.limit) {
+        limit = query?.limit as number;
+    }
+    const limitQuery = await sortQuery.limit(limit);
+
+    return limitQuery;
 };
 const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
     const { name, guardian, localGuardian, ...remainingStudentData } = payload;
