@@ -10,7 +10,6 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
     // {email: {$regex : query.searchTerm, $option: i}}
     // {presentAddress: {$regex : query.searchTerm, $option: i}}
     // {'name.firstName': {$regex : query.searchTerm, $option: i}}
-    console.log('base', { query });
 
     const queryObj = { ...query };
 
@@ -30,9 +29,10 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
         }))
     });
     // Filtering
-    const excludeFields = ['searchTerm', 'sort', 'limit'];
+    const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
 
     excludeFields.forEach((el) => delete queryObj[el]);
+    console.log('base', { query }, { queryObj });
 
     const filterQuery = searchQuery
         .find(queryObj)
@@ -48,14 +48,30 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
         sort = query.sort as string;
     }
     const sortQuery = filterQuery.sort(sort);
-
+    let page = 1;
     let limit = 1;
-    if (query?.limit) {
-        limit = query?.limit as number;
-    }
-    const limitQuery = await sortQuery.limit(limit);
+    let skip = 0;
 
-    return limitQuery;
+    if (query.limit) {
+        limit = Number(query?.limit);
+    }
+
+    if (query.page) {
+        page = Number(query.page);
+        skip = (page - 1) * limit;
+    }
+    const paginateQuery = sortQuery.skip(skip);
+
+    const limitQuery = paginateQuery.limit(limit);
+    // field limiting
+    let fields = '-__v';
+
+    if (query?.fields) {
+        fields = (query?.fields as string).split(',').join(' ');
+        console.log({ fields });
+    }
+    const fieldQuery = await limitQuery.select(fields);
+    return fieldQuery;
 };
 const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
     const { name, guardian, localGuardian, ...remainingStudentData } = payload;
