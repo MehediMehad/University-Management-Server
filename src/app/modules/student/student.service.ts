@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose from 'mongoose';
 import { Student } from './student.model';
 import AppError from '../../errors/AppError';
@@ -5,8 +6,26 @@ import { StatusCodes } from 'http-status-codes';
 import { User } from '../user/user.model';
 import { TStudent } from './student.interface';
 
-const getAllStudentsFromDB = async () => {
-    const result = await Student.find()
+const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
+    // {email: {$regex : query.searchTerm, $option: i}}
+    // {presentAddress: {$regex : query.searchTerm, $option: i}}
+    // {'name.firstName': {$regex : query.searchTerm, $option: i}}
+    const studentSearchableFields = [
+        'email',
+        'name.firstName',
+        'presentAddress'
+    ];
+
+    let searchTerm = '';
+    if (query?.searchTerm) {
+        searchTerm = query?.searchTerm as string;
+    }
+
+    const result = await Student.find({
+        $or: studentSearchableFields.map((field) => ({
+            [field]: { $regex: searchTerm, $options: 'i' }
+        }))
+    })
         .populate('admissionSemester')
         .populate({
             path: 'academicDepartment',
@@ -99,7 +118,6 @@ const deleteStudentFromDB = async (id: string) => {
         await session.endSession();
 
         return deletedStudent;
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars, @typescript-eslint/no-explicit-any
     } catch (err: any) {
         await session.abortTransaction();
         await session.endSession();

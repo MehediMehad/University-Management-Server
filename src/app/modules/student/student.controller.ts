@@ -7,7 +7,7 @@ import { Student } from './student.model';
 import AppError from '../../errors/AppError';
 
 const getAllStudents = catchAsync(async (req, res) => {
-    const result = await StudentServices.getAllStudentsFromDB();
+    const result = await StudentServices.getAllStudentsFromDB(req.query);
 
     sendResponse(res, {
         statusCode: StatusCodes.OK,
