@@ -18,8 +18,8 @@ const getAllStudents = catchAsync(async (req, res) => {
 });
 
 const getSingleStudent: RequestHandler = catchAsync(async (req, res) => {
-    const { studentId } = req.params;
-    const result = await StudentServices.getSingleStudentFromDB(studentId);
+    const { id } = req.params;
+    const result = await StudentServices.getSingleStudentFromDB(id);
 
     sendResponse(res, {
         statusCode: StatusCodes.OK,
@@ -30,17 +30,14 @@ const getSingleStudent: RequestHandler = catchAsync(async (req, res) => {
 });
 
 const updateStudent: RequestHandler = catchAsync(async (req, res) => {
-    const { studentId } = req.params;
+    const { id } = req.params;
     const { student } = req.body;
 
-    const isStudentExist = await Student.findOne({ id: studentId });
+    const isStudentExist = await Student.findOne({ id: id });
     if (!isStudentExist) {
         throw new AppError(StatusCodes.BAD_REQUEST, 'Student dose not exist');
     }
-    const result = await StudentServices.updateStudentIntoDB(
-        studentId,
-        student
-    );
+    const result = await StudentServices.updateStudentIntoDB(id, student);
 
     sendResponse(res, {
         statusCode: StatusCodes.OK,
