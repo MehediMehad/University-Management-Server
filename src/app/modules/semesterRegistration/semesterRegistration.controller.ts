@@ -72,6 +72,7 @@ const updateSemesterRegistration = catchAsync(
     }
 );
 
+// TODO: Implement deleteSemesterRegistration
 const deleteSemesterRegistration = catchAsync(
     async (req: Request, res: Response) => {
         // sendResponse(res, {
