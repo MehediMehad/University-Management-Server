@@ -4,6 +4,7 @@ import { AcademicSemester } from '../academicSemester/academicSemester.model';
 import { TSemesterRegistration } from './semesterRegistration.interface';
 import { SemesterRegistration } from './semesterRegistration.model';
 import QueryBuilder from '../../builder/QueryBuilder';
+import { RegistrationStatus } from './semesterRegistration.constant';
 
 const createSemesterRegistrationIntoDB = async (
     payload: TSemesterRegistration
@@ -13,7 +14,10 @@ const createSemesterRegistrationIntoDB = async (
     // check if there any registered semester that is already 'UPCOMING'|'ONGOING'
     const isThereAnyUpcomingOrOngoingSemester =
         await SemesterRegistration.findOne({
-            $or: [{ status: 'UPCOMING' }, { status: 'ONGOING' }]
+            $or: [
+                { status: RegistrationStatus.UPCOMING },
+                { status: RegistrationStatus.ONGOING }
+            ]
         });
 
     if (isThereAnyUpcomingOrOngoingSemester) {
@@ -75,6 +79,7 @@ const updateSemesterRegistrationIntoDB = async (
 
     //check if the semester registration exists
     const currentSemesterStatus = isSemesterRegistrationExist?.status;
+    const registeredSemesterStatus = payload?.status;
     if (!isSemesterRegistrationExist) {
         throw new AppError(
             StatusCodes.NOT_FOUND,
@@ -83,13 +88,37 @@ const updateSemesterRegistrationIntoDB = async (
     }
 
     // if the registered semester registration is ENDED, we wil not allow to update it
-    if (currentSemesterStatus === 'ENDED') {
+    if (currentSemesterStatus === RegistrationStatus.ENDED) {
         throw new AppError(
             StatusCodes.FORBIDDEN,
             'This semester registration is already ENDED'
         );
     }
-    //check if the academic semester is already registered
+    // UPCOMING -> ONGOING -> ENDED
+    if (
+        currentSemesterStatus === RegistrationStatus.UPCOMING &&
+        registeredSemesterStatus === RegistrationStatus.ENDED
+    ) {
+        throw new AppError(
+            StatusCodes.FORBIDDEN,
+            'You can not directly update the status to ENDED from UPCOMING'
+        );
+    }
+
+    if (
+        currentSemesterStatus === RegistrationStatus.ONGOING &&
+        registeredSemesterStatus === RegistrationStatus.UPCOMING
+    ) {
+        throw new AppError(
+            StatusCodes.FORBIDDEN,
+            'You can not directly update the status to UPCOMING from ONGOING'
+        );
+    }
+    const result = await SemesterRegistration.findByIdAndUpdate(id, payload, {
+        new: true, // return the updated document
+        runValidators: true // check data validation
+    });
+    return result;
 };
 const deleteSemesterRegistrationFromDB = async () => {};
 
