@@ -120,6 +120,15 @@ const getAllOfferedCoursesFromDB = async (query: Record<string, unknown>) => {
     return result;
 };
 
+const getSingleOfferedCourseFromDB = async (id: string) => {
+    const offeredCourse = await OfferedCourse.findById(id);
+
+    if (!offeredCourse) {
+        throw new AppError(StatusCodes.NOT_FOUND, 'Offered Course not found');
+    }
+    return offeredCourse;
+};
+
 const updateOfferedCourseIntoDB = async (
     id: string,
     payload: Pick<TOfferedCourse, 'faculty' | 'days' | 'startTime' | 'endTime'>
@@ -206,6 +215,7 @@ const deleteOfferedCourseFromDB = async (id: string) => {
 export const OfferedCourseService = {
     createOfferedCourseIntoDB,
     getAllOfferedCoursesFromDB,
+    getSingleOfferedCourseFromDB,
     updateOfferedCourseIntoDB,
     deleteOfferedCourseFromDB
 };
