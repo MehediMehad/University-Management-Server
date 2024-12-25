@@ -7,6 +7,7 @@ import { AcademicFaculty } from '../academicFaculty/academicFaculty.model';
 import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
 import { Course } from '../Course/course.model';
 import { Faculty } from '../Faculty/faculty.model';
+import { hasTimeConflict } from './OfferedCourse.utils';
 
 const createOfferedCourseIntoDB = async (payload: TOfferedCourse) => {
     const {
@@ -95,29 +96,29 @@ const createOfferedCourseIntoDB = async (payload: TOfferedCourse) => {
         endTime
     };
 
-    assignedSchedules.forEach((schedule) => {
-        const existingStartTime = new Date(`1970-01-01T${schedule.startTime}`);
-        const existingEndTime = new Date(`1970-01-01T${schedule.endTime}`);
-        const newStartTime = new Date(`1970-01-01T${newSchedule.startTime}`);
-        const newEndTime = new Date(`1970-01-01T${newSchedule.endTime}`);
-        // check if the new schedule is overlapping with the existing schedule
-        if (
-            (newStartTime >= existingStartTime &&
-                newStartTime <= existingEndTime) ||
-            (newEndTime >= existingStartTime && newEndTime <= existingEndTime)
-        ) {
-            throw new AppError(
-                StatusCodes.BAD_REQUEST,
-                `Faculty is already assigned in ${schedule.days} from ${schedule.startTime} to ${schedule.endTime}`
-            );
-        }
-    });
+    // check if the new schedule is overlapping with the existing schedule
+    if (hasTimeConflict(assignedSchedules, newSchedule)) {
+        throw new AppError(
+            StatusCodes.BAD_REQUEST,
+            'This faculty is not available at this time! Choose another time or day'
+        );
+    } // hasTimeConflict condition ends
 
     const result = await OfferedCourse.create({ ...payload, academicSemester });
     return result;
-    // return null;
 };
 
 export const OfferedCourseService = {
     createOfferedCourseIntoDB
 };
+
+/* Conditions to check createOfferedCourse:
+if (!isSemesterRegistrationExists)
+if (!isAcademicFacultyExists)
+if (!isAcademicDepartmentExists)
+if (!isCourseExists)
+if (!isFacultyExists)
+if (!isDepartmentBelongsToFaculty)
+if (isOfferedCourseExists)
+if (hasTimeConflict(assignedSchedules, newSchedule))
+*/
