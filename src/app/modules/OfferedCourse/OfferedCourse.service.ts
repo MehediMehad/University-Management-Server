@@ -15,7 +15,10 @@ const createOfferedCourseIntoDB = async (payload: TOfferedCourse) => {
         academicFaculty,
         course,
         faculty,
-        section
+        section,
+        days,
+        startTime,
+        endTime
     } = payload;
 
     // check if semesterRegistration id is exists
@@ -78,8 +81,41 @@ const createOfferedCourseIntoDB = async (payload: TOfferedCourse) => {
         );
     }
 
-    const result = await OfferedCourse.create({ ...payload, academicSemester });
-    return result;
+    // get the schedule of the faculty
+    const assignedSchedules = await OfferedCourse.find({
+        semesterRegistration,
+        faculty,
+        days: { $in: days }
+    }).select('days startTime endTime');
+
+    // new schedule
+    const newSchedule = {
+        days,
+        startTime,
+        endTime
+    };
+
+    assignedSchedules.forEach((schedule) => {
+        const existingStartTime = new Date(`1970-01-01T${schedule.startTime}`);
+        const existingEndTime = new Date(`1970-01-01T${schedule.endTime}`);
+        const newStartTime = new Date(`1970-01-01T${newSchedule.startTime}`);
+        const newEndTime = new Date(`1970-01-01T${newSchedule.endTime}`);
+        // check if the new schedule is overlapping with the existing schedule
+        if (
+            (newStartTime >= existingStartTime &&
+                newStartTime <= existingEndTime) ||
+            (newEndTime >= existingStartTime && newEndTime <= existingEndTime)
+        ) {
+            throw new AppError(
+                StatusCodes.BAD_REQUEST,
+                `Faculty is already assigned in ${schedule.days} from ${schedule.startTime} to ${schedule.endTime}`
+            );
+        }
+    });
+
+    // const result = await OfferedCourse.create({ ...payload, academicSemester });
+    // return result;
+    return null;
 };
 
 export const OfferedCourseService = {
