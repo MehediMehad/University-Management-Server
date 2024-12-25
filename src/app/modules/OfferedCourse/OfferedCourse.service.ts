@@ -165,9 +165,36 @@ const updateOfferedCourseIntoDB = async (
     return result;
 };
 
+const deleteOfferedCourseFromDB = async (id: string) => {
+    const isOfferedCourseExists = await OfferedCourse.findById(id);
+
+    if (!isOfferedCourseExists) {
+        throw new AppError(StatusCodes.NOT_FOUND, 'Offered Course not found');
+    }
+
+    const semesterRegistration = isOfferedCourseExists.semesterRegistration;
+
+    const semesterRegistrationStatus =
+        await SemesterRegistration.findById(semesterRegistration).select(
+            'status'
+        );
+
+    if (semesterRegistrationStatus?.status !== 'UPCOMING') {
+        throw new AppError(
+            StatusCodes.BAD_REQUEST,
+            `Offered course can not update ! because the semester ${semesterRegistrationStatus}`
+        );
+    }
+
+    const result = await OfferedCourse.findByIdAndDelete(id);
+
+    return result;
+};
+
 export const OfferedCourseService = {
     createOfferedCourseIntoDB,
-    updateOfferedCourseIntoDB
+    updateOfferedCourseIntoDB,
+    deleteOfferedCourseFromDB
 };
 
 /** Create Offered Course
@@ -189,4 +216,10 @@ export const OfferedCourseService = {
  * Step 3: get the schedules of the faculties
  * Step 4: check if the faculty is available at that time. If not then throw error
  * Step 5: update the offered course
+ */
+
+/** Delete Offered Course
+ * Step 1: check if the offered course exists
+ * Step 2: check if the semester registration status is upcoming
+ * Step 3: delete the offered course
  */
