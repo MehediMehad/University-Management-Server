@@ -60,7 +60,7 @@ userSchema.statics.isPasswordMatched = async function (
     plainTextPassword,
     hashPassword
 ) {
-    bcrypt.compare(
+    return await bcrypt.compare(
         plainTextPassword, // password from the request "Plain Text Password"
         hashPassword // password from the database "Hashed Password"
     );
