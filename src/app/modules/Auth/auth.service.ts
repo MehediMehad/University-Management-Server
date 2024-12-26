@@ -17,17 +17,16 @@ const loginUser = async (payload: TLoginUser) => {
     if (!user) {
         throw new AppError(StatusCodes.NOT_FOUND, 'The user is not found');
     }
-    if (user.isDeleted) {
+    if (user?.isDeleted) {
         throw new AppError(StatusCodes.NOT_FOUND, 'The user is deleted');
     }
-    if (user.status === 'blocked') {
+    if (user?.status === 'blocked') {
         throw new AppError(StatusCodes.NOT_FOUND, 'The user is blocked');
     }
-
-    const isPasswordMatched = await bcrypt.compare(
-        payload?.password, // password from the request "Plain Text Password"
-        user?.password // password from the database "Hashed Password"
-    ); // Returns a boolean "true OR false"
+    // check if the password is correct
+    if (!(await User.isPasswordMatched(payload?.password, user?.password))) {
+        throw new AppError(StatusCodes.UNAUTHORIZED, 'Password do not matched');
+    }
 
     return {};
 };

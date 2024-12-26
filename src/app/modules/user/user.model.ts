@@ -54,7 +54,16 @@ userSchema.post('save', async function (doc, next) {
 });
 
 userSchema.statics.isUserExistByCustomId = async function (id: string) {
-    return await User.findOne({ id }).select('isDeleted status password');
+    return await User.findOne({ id });
+};
+userSchema.statics.isPasswordMatched = async function (
+    plainTextPassword,
+    hashPassword
+) {
+    bcrypt.compare(
+        plainTextPassword, // password from the request "Plain Text Password"
+        hashPassword // password from the database "Hashed Password"
+    );
 };
 
 export const User = model<TUser, UserModel>('User', userSchema);
