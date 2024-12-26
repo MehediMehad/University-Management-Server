@@ -6,7 +6,6 @@ import jwt from 'jsonwebtoken';
 import config from '../../config';
 
 const loginUser = async (payload: TLoginUser) => {
-    console.log('loginUser payload: ', payload);
     /*
     step 1: check if user exists
     step 2: check if the user already deleted
