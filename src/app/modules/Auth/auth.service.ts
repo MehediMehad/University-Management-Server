@@ -6,6 +6,7 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import config from '../../config';
 import { createToken } from './auth.utils';
+import checkUser from '../../utils/checkUserValidity';
 
 const loginUser = async (payload: TLoginUser) => {
     /*
@@ -134,8 +135,36 @@ const refreshToken = async (token: string) => {
         accessToken
     };
 };
+const forgetPassword = async (id: string) => {
+    const user = await User.isUserExistByCustomId(id);
+
+    if (!user) {
+        throw new AppError(StatusCodes.NOT_FOUND, 'The user is not found');
+    }
+    if (user?.isDeleted) {
+        throw new AppError(StatusCodes.NOT_FOUND, 'The user is deleted');
+    }
+    if (user?.status === 'blocked') {
+        throw new AppError(StatusCodes.NOT_FOUND, 'The user is blocked');
+    }
+
+    const jwtPayload = {
+        userId: user.id,
+        role: user.role
+    };
+
+    const accessToken = createToken(
+        jwtPayload,
+        config.jwt_access_secret as string,
+        '10m'
+    );
+
+    const resetUILink = `http://localhost:3000?=${user?.id}&token=${accessToken}`;
+    console.log(resetUILink);
+};
 export const AuthServices = {
     loginUser,
     changePassword,
-    refreshToken
+    refreshToken,
+    forgetPassword
 };
