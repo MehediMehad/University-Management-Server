@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-unused-vars */
 import mongoose from 'mongoose';
 import config from '../../config';
 import { AcademicSemester } from '../academicSemester/academicSemester.model';
@@ -26,8 +25,9 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
     // if password is not given, user default password
     userData.password = password || (config.default_password as string);
 
-    // set student role
+    // set student role & email
     userData.role = 'student';
+    userData.email = payload.email;
     // year semesterCode 4 digit number
 
     // find academic semester info
@@ -65,7 +65,6 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
         await session.commitTransaction();
         await session.endSession();
         return newStudent;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
         await session.abortTransaction();
         await session.endSession();
@@ -79,8 +78,9 @@ const createFacultyIntoDB = async (password: string, payload: TFaculty) => {
     //if password is not given , use default password
     userData.password = password || (config.default_password as string);
 
-    //set student role
+    //set faculty role & email
     userData.role = 'faculty';
+    userData.email = payload.email;
 
     // find academic department info
     const academicDepartment = await AcademicDepartment.findById(
@@ -141,8 +141,9 @@ const createAdminIntoDB = async (password: string, payload: TFaculty) => {
     //if password is not given , use default password
     userData.password = password || (config.default_password as string);
 
-    //set student role
+    //set admin role & email
     userData.role = 'admin';
+    userData.email = payload.email;
 
     const session = await mongoose.startSession();
 
