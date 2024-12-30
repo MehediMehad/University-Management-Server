@@ -2,10 +2,10 @@ import { StatusCodes } from 'http-status-codes';
 import AppError from '../../errors/AppError';
 import { User } from '../user/user.model';
 import { TLoginUser } from './auth.interface';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import { JwtPayload } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import config from '../../config';
-import { createToken } from './auth.utils';
+import { createToken, verifyToken } from './auth.utils';
 import { sendEmail } from '../../utils/sendEmail';
 
 const loginUser = async (payload: TLoginUser) => {
@@ -94,10 +94,7 @@ const changePassword = async (
 
 const refreshToken = async (token: string) => {
     // checking if the given token is valid
-    const decoded = jwt.verify(
-        token,
-        config.jwt_refresh_secret as string
-    ) as JwtPayload;
+    const decoded = verifyToken(token, config.jwt_refresh_secret as string);
 
     const { userId, iat } = decoded;
 
@@ -161,7 +158,6 @@ const forgetPassword = async (id: string) => {
 
     const resetUILink = `${config.reset_pass_ui_link}?=${user?.id}&token=${resetUToken}`;
     sendEmail(user.email, resetUILink);
-    console.log(resetUILink);
 };
 const resetPassword = async (
     payload: { id: string; newPassword: string },
@@ -178,10 +174,7 @@ const resetPassword = async (
     if (user?.status === 'blocked') {
         throw new AppError(StatusCodes.NOT_FOUND, 'The user is blocked');
     }
-    const decoded = jwt.verify(
-        token,
-        config.jwt_access_secret as string
-    ) as JwtPayload;
+    const decoded = verifyToken(token, config.jwt_access_secret as string);
 
     if (payload.id !== decoded.userId) {
         throw new AppError(StatusCodes.FORBIDDEN, 'You are forbidden!');
