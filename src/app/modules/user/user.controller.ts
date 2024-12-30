@@ -49,17 +49,13 @@ const createAdmin = catchAsync(async (req, res) => {
 });
 
 const getMe = catchAsync(async (req, res) => {
-    const token = req.headers.authorization;
-    if (!token) {
-        throw new AppError(StatusCodes.UNAUTHORIZED, 'You are unauthorize!');
-    }
-
-    const result = await UserServices.getMe(token);
+    const { userId, role } = req.user;
+    const result = await UserServices.getMe(userId, role);
 
     sendResponse(res, {
         statusCode: StatusCodes.OK,
         success: true,
-        message: `$ is retrieved successfully`,
+        message: `${role} is retrieved successfully`,
         data: result
     });
 });
