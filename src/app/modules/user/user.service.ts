@@ -17,7 +17,6 @@ import { TFaculty } from '../Faculty/faculty.interface';
 import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
 import { Faculty } from '../Faculty/faculty.model';
 import { Admin } from '../Admin/admin.model';
-import { verifyToken } from '../Auth/auth.utils';
 import { USER_ROLE } from './user.constant';
 
 const createStudentIntoDB = async (password: string, payload: TStudent) => {
@@ -203,9 +202,17 @@ const getMe = async (userId: string, role: string) => {
     return result;
 };
 
+const changeStatus = async (id: string, payload: { status: string }) => {
+    const result = await User.findByIdAndUpdate(id, payload, {
+        new: true
+    });
+    return result;
+};
+
 export const UserServices = {
     createStudentIntoDB,
     createFacultyIntoDB,
     createAdminIntoDB,
-    getMe
+    getMe,
+    changeStatus
 };
