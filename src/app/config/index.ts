@@ -15,5 +15,8 @@ export default {
     jwt_refresh_expires_in: process.env.JWT_REFRESH_EXPIRES_IN,
     reset_pass_ui_link: process.env.RESET_PASS_UI_LINK,
     mailer_user: process.env.MAILER_USER,
-    node_mailer_pass: process.env.NODE_MAILER_APP_PASSWORD
+    node_mailer_pass: process.env.NODE_MAILER_APP_PASSWORD,
+    CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+    CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+    CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET
 };

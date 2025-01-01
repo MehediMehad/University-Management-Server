@@ -37,7 +37,11 @@ const localGuardianValidationSchema = z.object({
 
 export const createsStudentValidationSchema = z.object({
     body: z.object({
-        password: z.string().min(1, 'Password is required.').max(20),
+        password: z
+            .string()
+            .min(4, { message: 'Password must be at least 4 characters long.' })
+            .max(20, { message: 'Password cannot exceed 20 characters.' })
+            .optional(),
         student: z.object({
             name: userNameValidationSchema,
             gender: z.enum(['male', 'female', 'other'], {
@@ -64,10 +68,10 @@ export const createsStudentValidationSchema = z.object({
             guardian: guardianValidationSchema,
             localGuardian: localGuardianValidationSchema,
             admissionSemester: z.string(),
-            profileImg: z
-                .string()
-                .url('Invalid profile image URL.')
-                .min(1, 'Profile image URL is required.'),
+            // profileImg: z
+            //     .string()
+            //     .url('Invalid profile image URL.')
+            //     .min(1, 'Profile image URL is required.'),
             academicDepartment: z.string()
         })
     })
