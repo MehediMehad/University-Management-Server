@@ -2,6 +2,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 import config from '../config';
 import multer from 'multer';
+import fs from 'fs';
 
 interface CloudinaryResponse {
     secure_url: string;
@@ -31,6 +32,14 @@ export const sendImageToCloudinary = (
                     reject(error);
                 }
                 resolve(result as CloudinaryResponse);
+                // delete a file asynchronously
+                fs.unlink(path, (err) => {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log('File is deleted.');
+                    }
+                });
             }
         );
     });
