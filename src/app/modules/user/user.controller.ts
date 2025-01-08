@@ -17,7 +17,7 @@ const createStudent: RequestHandler = catchAsync(async (req, res) => {
         statusCode: StatusCodes.OK,
         success: true,
         message: 'Student is created successfully!',
-        data: null
+        data: result
     });
 });
 const createFaculty = catchAsync(async (req, res) => {

@@ -50,7 +50,7 @@ const createStudentIntoDB = async (
         const path = file?.path;
         const imageName = `${payload.name.firstName}${userData.id}`;
         // send image to Cloudinary
-        sendImageToCloudinary(imageName, path);
+        const { secure_url } = await sendImageToCloudinary(imageName, path);
 
         // create a user (transaction-1)
         const newUser = await User.create([userData], { session }); // built in method
@@ -64,6 +64,7 @@ const createStudentIntoDB = async (
         // set id , _id
         payload.id = newUser[0].id;
         payload.user = newUser[0]._id; // reference _id
+        payload.profileImg = secure_url;
 
         // create a user (transaction-2)
         const newStudent = await Student.create([payload], { session });
