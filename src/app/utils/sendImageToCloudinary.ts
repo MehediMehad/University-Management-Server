@@ -9,12 +9,12 @@ cloudinary.config({
     api_secret: config.CLOUDINARY_API_SECRET
 });
 
-export const sendImageToCloudinary = () => {
+export const sendImageToCloudinary = (imageName: string, path: string) => {
     // Upload an image
     cloudinary.uploader.upload(
-        'https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg',
+        path,
         {
-            public_id: 'shoes'
+            public_id: imageName
         },
         function (error, result) {
             console.log(result);

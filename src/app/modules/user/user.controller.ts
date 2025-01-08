@@ -5,15 +5,14 @@ import { StatusCodes } from 'http-status-codes';
 import catchAsync from '../../utils/catchAsync';
 
 const createStudent: RequestHandler = catchAsync(async (req, res) => {
-    console.log(req.file);
-    console.log(req.body);
+    const file = req.file;
+    const { password, student: studentData } = req.body;
 
-    // const { password, student: studentData } = req.body;
-
-    // const result = await UserServices.createStudentIntoDB(
-    //     password,
-    //     studentData
-    // );
+    const result = await UserServices.createStudentIntoDB(
+        file,
+        password,
+        studentData
+    );
     sendResponse(res, {
         statusCode: StatusCodes.OK,
         success: true,
