@@ -3,6 +3,7 @@ import { AcademicSemesterControllers } from './academicSemester.controller';
 import validateRequest from '../../Middleware/validateRequest';
 import { AcademicSemesterValidations } from './academicSemester.validation';
 import auth from '../../Middleware/auth';
+import { USER_ROLE } from '../user/user.constant';
 const router = express.Router();
 
 router.post(
@@ -29,7 +30,7 @@ router.patch(
 
 router.get(
     '/',
-    auth('admin'),
+    auth(USER_ROLE.admin),
     AcademicSemesterControllers.getAllAcademicSemesters
 );
 

@@ -140,6 +140,10 @@ const studentSchema = new Schema<TStudent, StudentModel>(
             type: String,
             required: [true, 'Permanent address is required.']
         },
+        presentAddress: {
+            type: String,
+            required: [true, 'Present address is required.']
+        },
         guardian: {
             type: guardianSchema,
             required: [true, 'Guardian information is required.']
