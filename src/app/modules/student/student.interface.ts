@@ -43,6 +43,7 @@ export type TStudent = {
     admissionSemester: Types.ObjectId;
     isDeleted?: boolean | null | undefined;
     academicDepartment: Types.ObjectId;
+    // academicFaculty: Types.ObjectId;
 };
 
 // for crating static

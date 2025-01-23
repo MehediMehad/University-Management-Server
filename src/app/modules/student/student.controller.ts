@@ -8,12 +8,14 @@ import AppError from '../../errors/AppError';
 
 const getAllStudents = catchAsync(async (req, res) => {
     const result = await StudentServices.getAllStudentsFromDB(req.query);
+    // console.log(JSON.stringify(result, null, 1));
 
     sendResponse(res, {
         statusCode: StatusCodes.OK,
         success: true,
         message: 'Students are retrieved successfully!',
-        data: result
+        meta: result.meta,
+        data: result.result
     });
 });
 
